@@ -1,0 +1,37 @@
+8.8.8.8
+185.220.101.45
+2001:db8::1
+evil-domain.com
+https://malicious-site.example/payload.exe
+d41d8cd98f00b204e9800998ecf8427e
+da39a3ee5e6b4b0d3255bfef95601890afd80709
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+hxxps://evil[.]com/login
+hxxp://bad-site[.]example/a.php
+1[.]2[.]3[.]4
+185[.]220[.]101[.]45
+evil(.)com
+phish{.}example[.]org
+hxxp[:]//malware[.]example/drop.exe
+
+EVIL.com
+evil.com
+HXXPS://Evil[.]COM/login
+https://evil.com/login
+https://evil.com/Login
+D41D8CD98F00B204E9800998ECF8427E
+2001:DB8:0:0:0:0:0:1
+   8.8.8.8   
+
+
+hello world
+999.1.1.1
+1.2.3
+localhost
+ftp://example.com
+-bad.com
+a..b
+test.
+zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+hello world
