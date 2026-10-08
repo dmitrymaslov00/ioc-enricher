@@ -55,3 +55,17 @@ def detect_ioc_type(value):
 
 
     return 'unknown'
+
+def normalize(value, ioc_type):
+    if ioc_type in ('md5', 'sha1', 'sha256', 'domain'):
+        value = value.lower()
+
+    if ioc_type in ('ipv4', 'ipv6'):
+        value = str(ipaddress.ip_address(value))
+
+    if ioc_type == 'url':
+        value = urlparse(value)
+        value = value._replace(scheme = value.scheme.lower(), netloc = value.netloc.lower())
+        value = value.geturl()
+
+    return value
