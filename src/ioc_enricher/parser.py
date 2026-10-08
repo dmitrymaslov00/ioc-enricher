@@ -3,9 +3,28 @@ import ipaddress
 from urllib.parse import urlparse
 
 
+def refang(value):
+    value = value.strip()
+
+    if '[.]' in value:
+        value = value.replace('[.]', '.')
+    if '(.)' in value:
+        value = value.replace('(.)', '.')
+    if '{.}' in value:
+        value = value.replace('{.}', '.')
+    if '[:]' in value:
+        value = value.replace('[:]', ':')
+    if '[://]' in value:
+        value = value.replace('[://]', '://') 
+
+    value = re.sub(r'^hxxp', 'http', value, flags=re.IGNORECASE)
+    value = re.sub(r'^https', 'https', value, flags=re.IGNORECASE)
+
+    return value
+
 
 def detect_ioc_type(value):
-    value = value.strip()
+    value = refang(value)
 
     # hashes
     if len(value) == 32 and all(c in '0123456789abcdefABCDEF' for c in value):
