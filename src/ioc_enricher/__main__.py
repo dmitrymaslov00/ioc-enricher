@@ -1,12 +1,14 @@
 import sys
 from ioc_enricher.parser import detect_ioc_type, refang, normalize
 import argparse
+import json
 
 
 def main(argv=None):
 
     parser = argparse.ArgumentParser(description='ioc enricher')
     parser.add_argument('input', help = 'path to the input file')
+    parser.add_argument('-f', '--format', choices = ['tsv', 'json'], default = 'tsv', help = 'output format (default: tsv)')
     args = parser.parse_args(argv)
 
     try:
@@ -17,6 +19,7 @@ def main(argv=None):
         return 1
 
     seen = set()
+    results = []
 
     for line in data:
         clean = refang(line)
@@ -31,8 +34,14 @@ def main(argv=None):
             continue
         else:
             seen.add(key)
+            results.append({ 'type': ioc, 'value': value })
 
-        print(f'{ioc}\t{value}')
+    if args.format == 'tsv':
+        for i in results:
+            print(f'{i["type"]}\t{i["value"]}')
+
+    elif args.format == 'json':
+        print(json.dumps(results, indent=2, ensure_ascii=False))
 
     return 0
 
