@@ -51,12 +51,26 @@ def main(argv=None):
 
     if args.enrich:
         for i in results:
-            if i['type'] in ('ipv4', 'ipv6'):
-                i['abuseipdb'] = check_ip(i['value'], api_key)
+            if i["type"] in ('ipv4', 'ipv6'):
+                i["abuseipdb"] = check_ip(i["value"], api_key)
 
     if args.format == 'tsv':
-        for i in results:
-            print(f'{i["type"]}\t{i["value"]}')
+        if not args.enrich:
+            for i in results:
+                print(f'{i["type"]}\t{i["value"]}')
+        else:
+            for i in results:
+                info = i.get('abuseipdb')
+                if not info:
+                    score = ''
+                    country = ''
+                elif "error" in info:
+                    score = 'error'
+                    country = info["error"]
+                else:
+                    score = str(info["score"])
+                    country = str(info["country"] or '')
+                print(f'{i["type"]}\t{i["value"]}\t{score}\t{country}')
 
     elif args.format == 'json':
         print(json.dumps(results, indent=2, ensure_ascii=False))
