@@ -2,6 +2,9 @@ import sys
 from ioc_enricher.parser import detect_ioc_type, refang, normalize
 import argparse
 import json
+import os
+from dotenv import load_dotenv
+from ioc_enricher.providers.abuseipdb import check_ip
 
 
 def main(argv=None):
@@ -9,7 +12,16 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='ioc enricher')
     parser.add_argument('input', help = 'path to the input file')
     parser.add_argument('-f', '--format', choices = ['tsv', 'json'], default = 'tsv', help = 'output format (default: tsv)')
+    parser.add_argument('-e', '--enrich', action = 'store_true', help = 'look up ip addresses in AbuseIPDB (ABUSEIPDB_API_KEY required in .env file)')
     args = parser.parse_args(argv)
+
+    if args.enrich:
+        load_dotenv()
+        api_key = os.environ.get('ABUSEIPDB_API_KEY')
+        if not api_key:
+            print('ABUSEIPDB_API_KEY not found in .env file', file=sys.stderr)
+            return 1
+
 
     try:
         with open(args.input, 'r', encoding='utf-8') as f:

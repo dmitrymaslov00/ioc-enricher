@@ -68,3 +68,18 @@ def test_invalid_format(tmp_path):
         main([str(p), '-f', 'xml'])
 
     assert exc_info.value.code == 2
+
+
+def test_enrich_without_key(tmp_path, capsys, monkeypatch):
+    p = tmp_path / 'iocs.txt'
+    p.write_text('8.8.8.8', encoding = 'utf-8')
+
+    monkeypatch.delenv('ABUSEIPDB_API_KEY', raising=False)
+    monkeypatch.setattr('ioc_enricher.__main__.load_dotenv', lambda: None)
+
+    code = main([str(p), '--enrich'])
+    captured = capsys.readouterr()
+
+    assert code == 1
+    assert captured.err
+    assert captured.out == '' 
