@@ -15,6 +15,7 @@ def main(argv=None):
     parser.add_argument('-e', '--enrich', action = 'store_true', help = 'look up ip addresses in AbuseIPDB (ABUSEIPDB_API_KEY required in .env file)')
     args = parser.parse_args(argv)
 
+    api_key = None
     if args.enrich:
         load_dotenv()
         api_key = os.environ.get('ABUSEIPDB_API_KEY')
@@ -47,6 +48,11 @@ def main(argv=None):
         else:
             seen.add(key)
             results.append({ 'type': ioc, 'value': value })
+
+    if args.enrich:
+        for i in results:
+            if i['type'] in ('ipv4', 'ipv6'):
+                i['abuseipdb'] = check_ip(i['value'], api_key)
 
     if args.format == 'tsv':
         for i in results:
