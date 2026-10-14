@@ -1,7 +1,8 @@
 import json
 import pytest
 from ioc_enricher.__main__ import main 
-
+import responses
+from ioc_enricher.providers.abuseipdb import URL
 
 
 def test_basic(tmp_path, capsys):
@@ -83,3 +84,31 @@ def test_enrich_without_key(tmp_path, capsys, monkeypatch):
     assert code == 1
     assert captured.err
     assert captured.out == '' 
+
+
+@responses.activate
+def test_enrich_json(tmp_path, capsys, monkeypatch):
+    p = tmp_path / 'iocs.txt'
+    p.write_text('31.16.188.104\n31[.]16[.]188[.]104\nexample.com', encoding = 'utf-8')
+    
+    monkeypatch.setenv('ABUSEIPDB_API_KEY', 'fake-key')
+    monkeypatch.setattr('ioc_enricher.__main__.load_dotenv', lambda: None)
+
+    responses.add(
+            responses.GET,
+            URL,
+            json={"data": {"abuseConfidenceScore": 50, "totalReports": 222, "countryCode": "DE", "isp": "Deutsche Telekom"}},
+            status=200
+        )
+
+    code = main([str(p), '--enrich', '-f', 'json'])
+    captured = capsys.readouterr()
+
+    res = json.loads(captured.out)
+
+    assert code == 0
+    assert res == [
+        {"type": "ipv4", "value": "31.16.188.104", "abuseipdb": {"score": 50, "reports": 222, "country": "DE", "isp": "Deutsche Telekom"}},
+        {"type": "domain", "value": "example.com"}
+    ]
+    assert len(responses.calls) == 1
