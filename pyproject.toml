@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ioc-enricher"
+version = "0.1.0"
+description = "CLI tool that refangs, normalizes, deduplicates and enriches IOCs (AbuseIPDB)"
+requires-python = ">=3.9"
+dependencies = ["requests", "python-dotenv"]
+
+[project.optional-dependencies]
+dev = ["pytest", "responses"]
+
+[project.scripts]
+ioc-enricher = "ioc_enricher.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

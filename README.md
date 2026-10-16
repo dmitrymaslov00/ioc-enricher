@@ -18,7 +18,7 @@ git clone https://github.com/dmitrymaslov00/ioc-enricher.git
 cd ioc-enricher
 python3 -m venv env
 source env/bin/activate
-pip install -r requirements.txt
+pip install -e ".[dev]"
 ```
 
 ## Configuration
@@ -31,12 +31,10 @@ To use enrichment (`-e/--enrich`) get a free API key at [abuseipdb.com](https://
 
 ## Usage
 
-Note: `PYTHONPATH=src` is environment variable. It tells Python where to look for the package and is required until the project is packaged. 
-
 Regular run in tsv format (output truncated): 
 
 ```bash
-PYTHONPATH=src python3 -m ioc_enricher examples/iocs.txt
+ioc-enricher examples/iocs.txt
 ```
 ```text
 ipv4    8.8.8.8
@@ -51,7 +49,7 @@ sha1    da39a3ee5e6b4b0d3255bfef95601890afd80709
 Run with json output (without `-e/--enrich` IP addresses won't have AbuseIPDB data):
 
 ```bash
-PYTHONPATH=src python3 -m ioc_enricher examples/test_ips.txt -f json
+ioc-enricher examples/test_ips.txt -f json
 ```
 ```text
 [
@@ -69,7 +67,7 @@ PYTHONPATH=src python3 -m ioc_enricher examples/test_ips.txt -f json
 Run with json output and enrichment:
 
 ```bash
-PYTHONPATH=src python3 -m ioc_enricher examples/test_ips.txt -f json -e
+ioc-enricher examples/test_ips.txt -f json -e
 ```
 ```text
 [
@@ -99,7 +97,7 @@ PYTHONPATH=src python3 -m ioc_enricher examples/test_ips.txt -f json -e
 Run with tsv output and enrichment (type, value, score, country):
 
 ```bash
-PYTHONPATH=src python3 -m ioc_enricher examples/test_ips.txt -f tsv -e
+ioc-enricher examples/test_ips.txt -f tsv -e
 ```
 ```text
 ipv4    8.8.8.8     0       US
@@ -120,7 +118,6 @@ ipv4    1.1.1.1     0       AU
 - Only IP addresses are enriched
 - No cache saves between runs
 - No retries in case of 429 error code
-- `PYTHONPATH=src` is required
 
 ## Tests
 
