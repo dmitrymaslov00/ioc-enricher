@@ -116,7 +116,6 @@ ipv4    1.1.1.1     0       AU
 
 ## Known limitations
 
-- Normalize lowercases entire host block of url, including login and password (marked as a xfail test)
 - KeyError will be raised if AbuseIPDB API will give non-typical response
 - Only IP addresses are enriched
 - No cache saves between runs
@@ -129,7 +128,5 @@ ipv4    1.1.1.1     0       AU
 pytest
 ```
 ```text
-75 passed, 1 xfailed in 0.16s
+84 passed in 0.15s
 ```
-
-Note: 1 xfail test is known limitation, described above

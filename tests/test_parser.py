@@ -78,11 +78,15 @@ def test_refang(value, expected):
     ('http://evil.com', 'url', 'http://evil.com'),
     ('hello world', 'unknown', 'hello world'),
     ('Hello.World', 'unknown', 'Hello.World'),
+    ('https://User:Pass@Evil.COM/a', 'url', 'https://User:Pass@evil.com/a'),
+    ('https://user@Evil.COM/a', 'url', 'https://user@evil.com/a'),
+    ('https://User:Pass@Evil.COM:8443/a', 'url', 'https://User:Pass@evil.com:8443/a'),
+    ('http://[::1]:8080/a', 'url', 'http://[::1]:8080/a'),
+    ('http://[2001:DB8::1]/a', 'url', 'http://[2001:db8::1]/a'),
+    ('HTTPS://Evil.COM/a?Q=B#F', 'url', 'https://evil.com/a?Q=B#F'),
+    ('https://evil.com/a', 'url', 'https://evil.com/a'),
+    ('http://evil.com:99999/a', 'url', 'http://evil.com:99999/a'),
+    ('http://Evil.com:abc/a', 'url', 'http://Evil.com:abc/a'),
 ])
 def test_normalize(value, ioc_type, expected):
     assert normalize(value, ioc_type) == expected
-
-
-@pytest.mark.xfail(reason='netloc.lower() breaks register of login and password in URL')
-def test_normalize_url_keeps_credentials_case():
-    assert normalize('https://User:Pass@Evil.COM/a', 'url') == 'https://User:Pass@evil.com/a'

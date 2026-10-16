@@ -64,8 +64,27 @@ def normalize(value, ioc_type):
         value = str(ipaddress.ip_address(value))
 
     if ioc_type == 'url':
-        value = urlparse(value)
-        value = value._replace(scheme = value.scheme.lower(), netloc = value.netloc.lower())
-        value = value.geturl()
+        u = urlparse(value)
+
+        port = None
+        try:
+            port = u.port
+        except ValueError:
+            return value
+
+        netloc = ''
+        if u.username:
+            netloc += f'{u.username}'
+            if u.password:
+                netloc += f':{u.password}'
+            netloc += '@'
+        if ':' in u.hostname:
+            netloc += f'[{u.hostname}]'
+        else:
+            netloc += u.hostname
+        if port is not None:
+            netloc += f':{port}'
+
+        value = u._replace(netloc=netloc).geturl()
 
     return value
