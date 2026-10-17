@@ -112,3 +112,63 @@ def test_enrich_json(tmp_path, capsys, monkeypatch):
         {"type": "domain", "value": "example.com"}
     ]
     assert len(responses.calls) == 1
+
+
+@pytest.fixture(autouse=True)
+def isolated_cache(tmp_path, monkeypatch):
+    monkeypatch.setattr('ioc_enricher.__main__.CACHE_PATH', tmp_path / 'cache.db')
+
+
+@pytest.fixture
+def fake_key(monkeypatch):
+    monkeypatch.setenv('ABUSEIPDB_API_KEY', 'fake-key')
+    monkeypatch.setattr('ioc_enricher.__main__.load_dotenv', lambda: None)
+
+
+API_OK = {"data": {"abuseConfidenceScore": 50, "totalReports": 222,
+                   "countryCode": "DE", "isp": "Deutsche Telekom"}}
+
+
+@responses.activate
+def test_enrich_uses_cache(tmp_path, capsys, fake_key):
+    p = tmp_path / 'iocs.txt'
+    p.write_text('8.8.8.8', encoding='utf-8')
+    responses.add(responses.GET, URL, json=API_OK, status=200)
+
+    main([str(p), '--enrich', '-f', 'json'])
+    first = capsys.readouterr().out
+    main([str(p), '--enrich', '-f', 'json'])
+    second = capsys.readouterr().out
+
+    assert len(responses.calls) == 1
+    assert first == second
+
+
+@responses.activate
+def test_no_cache_flag_skips_cache(tmp_path, capsys, fake_key):
+    p = tmp_path / 'iocs.txt'
+    p.write_text('8.8.8.8', encoding='utf-8')
+    responses.add(responses.GET, URL, json=API_OK, status=200)
+
+    main([str(p), '--enrich', '--no-cache', '-f', 'json'])
+    main([str(p), '--enrich', '--no-cache', '-f', 'json'])
+
+    assert len(responses.calls) == 2
+
+
+@responses.activate
+def test_errors_are_not_cached(tmp_path, capsys, fake_key):
+    p = tmp_path / 'iocs.txt'
+    p.write_text('8.8.8.8', encoding='utf-8')
+
+    responses.add(responses.GET, URL, status=429)
+    main([str(p), '--enrich', '-f', 'json'])
+    first = json.loads(capsys.readouterr().out)
+
+    responses.replace(responses.GET, URL, json=API_OK, status=200)
+    main([str(p), '--enrich', '-f', 'json'])
+    second = json.loads(capsys.readouterr().out)
+
+    assert first[0]['abuseipdb'] == {"error": "Too many requests"}
+    assert second[0]['abuseipdb']['score'] == 50
+    assert len(responses.calls) == 2
