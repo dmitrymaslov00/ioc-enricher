@@ -10,6 +10,7 @@ This CLI tool is designed for SOC analysts. The analyst receives a list of IOCs 
 - **Deduplication:** removes duplicate entries after refang and normalization, so `EVIL.com` and `evil[.]com` count as one IOC
 - **Output:** tsv (default) and json via `-f/--format`
 - **Enrichment:** enabled by flag `-e/--enrich`. It looks up the information about IPv4 and IPv6 addresses via AbuseIPDB API
+- **Cache:** SQLite caching of AbuseIPDB results to speed up processing and decrease spending of limits. Cache lives 24 hours. Db path: `~/.cache/ioc-enricher/cache.db`. You can disable this feature using the flag `--no-cache`
 
 ## Installation
 
@@ -94,10 +95,20 @@ ioc-enricher examples/test_ips.txt -f json -e
 ]
 ```
 
-Run with tsv output and enrichment (type, value, score, country):
+Run with tsv output and enrichment (type, value, score, country), cache is enabled by default (the second run with previously processed IP's takes data about them from `cache.db` and doesn't spend your API limits):
 
 ```bash
 ioc-enricher examples/test_ips.txt -f tsv -e
+```
+```text
+ipv4    8.8.8.8     0       US
+ipv4    1.1.1.1     0       AU
+```
+
+Run with tsv output and enrichment with the flag `--no-cache` (the second run with this flag won't take data about processed IP addresses from `cache.db`):
+
+```bash
+ioc-enricher examples/test_ips.txt -f tsv -e --no-cache
 ```
 ```text
 ipv4    8.8.8.8     0       US
@@ -111,13 +122,14 @@ ipv4    1.1.1.1     0       AU
 - Enrichment goes after deduplication not to repeat API requests on identical IP addresses and not waste limits (`31.16.188.104` and `31[.]16[.]188[.]104` count as one request, not two)
 - `check_ip` function returns `{"error": "..."}` to recognize which exact error the program faced and give correct output next to the entry. It helps not to kill the whole process and continue processing other entries
 - In enrichment tests real API requests are replaced with fake ones. It helps to avoid spending limits, network isn't required and errors can be reproduced artificially to check the program's responses
+- Cache is enabled by default (only with enrichment). Data key is a pair of provider + IOC, so info about different providers doesn't mix in cache db. Errors are not cached, temporary error (e.g `429`) won't get stuck for 24h
 
 ## Known limitations
 
 - KeyError will be raised if AbuseIPDB API will give non-typical response
 - Only IP addresses are enriched
-- No cache saves between runs
 - No retries in case of 429 error code
+- TTL of cache db is fixed at 24 hours. You can increase or decrease this value in cache.py file
 
 ## Tests
 
@@ -125,5 +137,5 @@ ipv4    1.1.1.1     0       AU
 pytest
 ```
 ```text
-84 passed in 0.15s
+93 passed in 0.31s
 ```
