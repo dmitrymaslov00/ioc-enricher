@@ -1,7 +1,9 @@
 import json
+
 import pytest
-from ioc_enricher.__main__ import main 
 import responses
+
+from ioc_enricher.__main__ import main
 from ioc_enricher.providers.abuseipdb import URL
 
 

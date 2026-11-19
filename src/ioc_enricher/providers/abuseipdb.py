@@ -1,6 +1,6 @@
-import requests
 import time
 
+import requests
 
 URL = 'https://api.abuseipdb.com/api/v2/check'
 MAX_AGE_DAYS = 90

@@ -1,6 +1,6 @@
 import pytest
-from ioc_enricher.cache import Cache
 
+from ioc_enricher.cache import Cache
 
 
 @pytest.fixture

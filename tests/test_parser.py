@@ -1,5 +1,6 @@
 import pytest
-from ioc_enricher.parser import detect_ioc_type, refang, normalize
+
+from ioc_enricher.parser import detect_ioc_type, normalize, refang
 
 
 @pytest.mark.parametrize('value, expected', [

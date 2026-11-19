@@ -1,13 +1,14 @@
-import sys
-from ioc_enricher.parser import detect_ioc_type, refang, normalize
 import argparse
 import json
 import os
-from dotenv import load_dotenv
-from ioc_enricher.providers.abuseipdb import check_ip
+import sys
 from pathlib import Path
-from ioc_enricher.cache import Cache
 
+from dotenv import load_dotenv
+
+from ioc_enricher.cache import Cache
+from ioc_enricher.parser import detect_ioc_type, normalize, refang
+from ioc_enricher.providers.abuseipdb import check_ip
 
 CACHE_PATH = Path.home() / '.cache' / 'ioc-enricher' / 'cache.db'
 

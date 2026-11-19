@@ -1,8 +1,8 @@
-import responses
-from ioc_enricher.providers.abuseipdb import check_ip, URL
 import pytest
 import requests
+import responses
 
+from ioc_enricher.providers.abuseipdb import URL, check_ip
 
 
 @responses.activate

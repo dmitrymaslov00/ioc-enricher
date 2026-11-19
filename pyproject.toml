@@ -10,7 +10,7 @@ requires-python = ">=3.9"
 dependencies = ["requests", "python-dotenv"]
 
 [project.optional-dependencies]
-dev = ["pytest", "responses"]
+dev = ["pytest", "responses", "ruff"]
 
 [project.scripts]
 ioc-enricher = "ioc_enricher.__main__:main"
