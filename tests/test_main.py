@@ -157,11 +157,12 @@ def test_no_cache_flag_skips_cache(tmp_path, capsys, fake_key):
 
 
 @responses.activate
-def test_errors_are_not_cached(tmp_path, capsys, fake_key):
+def test_errors_are_not_cached(tmp_path, capsys, fake_key, monkeypatch):
     p = tmp_path / 'iocs.txt'
     p.write_text('8.8.8.8', encoding='utf-8')
 
     responses.add(responses.GET, URL, status=429)
+    monkeypatch.setattr("ioc_enricher.providers.abuseipdb.time.sleep", lambda _: None)
     main([str(p), '--enrich', '-f', 'json'])
     first = json.loads(capsys.readouterr().out)
 
@@ -169,6 +170,6 @@ def test_errors_are_not_cached(tmp_path, capsys, fake_key):
     main([str(p), '--enrich', '-f', 'json'])
     second = json.loads(capsys.readouterr().out)
 
-    assert first[0]['abuseipdb'] == {"error": "Too many requests"}
+    assert first[0]['abuseipdb'] == {"error": "AbuseIPDB rate limit exceeded after 3 attempts"}
     assert second[0]['abuseipdb']['score'] == 50
-    assert len(responses.calls) == 2
+    assert len(responses.calls) == 4

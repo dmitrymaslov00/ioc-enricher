@@ -28,7 +28,6 @@ def test_check_ip_success():
     (403, {"error": "Forbidden"}),
     (404, {"error": "Not found"}),
     (422, {"error": "IP address is incorrect"}),      
-    (429, {"error": "Too many requests"}),
     (500, {"error": "API host is down"}),
     (503, {"error": "API host is unreachable"}),
     (444, {"error": "Check your request or settings and try again"})
@@ -72,3 +71,51 @@ def test_check_ip_returns_error_for_incomplete_response():
     res = check_ip('8.8.8.8', 'fake-key')
 
     assert res == {"error": "Incomplete AbuseIPDB response"}
+
+
+@responses.activate
+def test_check_ip_returns_error_after_three_rate_limited_attempts(monkeypatch):
+    responses.add(
+        responses.GET,
+        URL,
+        status=429
+    )
+
+    delays = []
+
+    monkeypatch.setattr("ioc_enricher.providers.abuseipdb.time.sleep", delays.append)
+
+    res = check_ip('8.8.8.8', 'fake-key')
+
+    assert res == {"error": "AbuseIPDB rate limit exceeded after 3 attempts"}
+    assert len(responses.calls) == 3
+    assert delays == [1, 2]
+
+
+@responses.activate
+def test_check_ip_succeeds_after_retrying_rate_limited_request(monkeypatch):
+    responses.add(
+        responses.GET,
+        URL,
+        status=429
+    )
+
+    responses.add(
+        responses.GET,
+        URL,
+        json={"data": {"abuseConfidenceScore": 0, "totalReports": 234, "countryCode": "US", "isp": "Google LLC"}},
+        status=200
+    )
+
+    delays = []
+
+    monkeypatch.setattr("ioc_enricher.providers.abuseipdb.time.sleep", delays.append)
+
+    res = check_ip('8.8.8.8', 'fake-key')
+
+    assert len(responses.calls) == 2
+    assert delays == [1]
+    assert res == {"score": 0, 
+                        "reports": 234, 
+                        "country": "US", 
+                        "isp": "Google LLC"}

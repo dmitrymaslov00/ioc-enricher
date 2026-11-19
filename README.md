@@ -123,11 +123,11 @@ ipv4    1.1.1.1     0       AU
 - `check_ip` function returns `{"error": "..."}` to recognize which exact error the program faced and give correct output next to the entry. It helps not to kill the whole process and continue processing other entries. If a successful AbuseIPDB response is missing data or a required field, the CLI reports an error for that IP and continues processing the remaining indicators
 - In enrichment tests real API requests are replaced with fake ones. It helps to avoid spending limits, network isn't required and errors can be reproduced artificially to check the program's responses
 - Cache is enabled by default (only with enrichment). Data key is a pair of provider + IOC, so info about different providers doesn't mix in cache db. Errors are not cached, temporary error (e.g `429`) won't get stuck for 24h
+- After `429` error CLI retries request with delay 1 second, 2 seconds. It sends not more than 3 requests and reports error for that IP if 3 responses contain 429 error
 
 ## Known limitations
 
 - Only IP addresses are enriched
-- No retries in case of 429 error code
 - TTL of cache db is fixed at 24 hours. You can increase or decrease this value in cache.py file
 
 ## Tests
@@ -136,5 +136,5 @@ ipv4    1.1.1.1     0       AU
 pytest
 ```
 ```text
-94 passed in 0.18s
+95 passed in 0.19s
 ```
