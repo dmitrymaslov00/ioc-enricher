@@ -120,13 +120,12 @@ ipv4    1.1.1.1     0       AU
 - `--enrich` is disabled by default to not spend your API limits. The network should not be switched on accidentally. Tests and default runs don't depend on an internet connection
 - Errors go into stderr and output data into stdout. Stdout is data which can be transferred to another program and errors should not go into it
 - Enrichment goes after deduplication not to repeat API requests on identical IP addresses and not waste limits (`31.16.188.104` and `31[.]16[.]188[.]104` count as one request, not two)
-- `check_ip` function returns `{"error": "..."}` to recognize which exact error the program faced and give correct output next to the entry. It helps not to kill the whole process and continue processing other entries
+- `check_ip` function returns `{"error": "..."}` to recognize which exact error the program faced and give correct output next to the entry. It helps not to kill the whole process and continue processing other entries. If a successful AbuseIPDB response is missing data or a required field, the CLI reports an error for that IP and continues processing the remaining indicators
 - In enrichment tests real API requests are replaced with fake ones. It helps to avoid spending limits, network isn't required and errors can be reproduced artificially to check the program's responses
 - Cache is enabled by default (only with enrichment). Data key is a pair of provider + IOC, so info about different providers doesn't mix in cache db. Errors are not cached, temporary error (e.g `429`) won't get stuck for 24h
 
 ## Known limitations
 
-- KeyError will be raised if AbuseIPDB API will give non-typical response
 - Only IP addresses are enriched
 - No retries in case of 429 error code
 - TTL of cache db is fixed at 24 hours. You can increase or decrease this value in cache.py file
@@ -137,5 +136,5 @@ ipv4    1.1.1.1     0       AU
 pytest
 ```
 ```text
-93 passed in 0.31s
+94 passed in 0.18s
 ```

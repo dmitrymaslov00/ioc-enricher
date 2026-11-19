@@ -47,3 +47,28 @@ def test_check_network_error():
     res = check_ip('8.8.8.8', 'fake-key')
 
     assert res == {"error": "Network error: check your internet connection"}
+
+
+@responses.activate
+def test_check_ip_returns_error_for_incomplete_response():
+    responses.add(
+        responses.GET,
+        URL,
+        json={},
+        status=200
+    )
+
+    res = check_ip('8.8.8.8', 'fake-key')
+
+    assert res == {"error": "Incomplete AbuseIPDB response"}
+
+    responses.add(
+        responses.GET,
+        URL,
+        json={"data": {"abuseConfidenceScore": 0, "totalReports": 3, "countryCode": "US"}},
+        status=200
+    )
+
+    res = check_ip('8.8.8.8', 'fake-key')
+
+    assert res == {"error": "Incomplete AbuseIPDB response"}

@@ -13,7 +13,15 @@ def check_ip(ip, api_key):
         r = requests.get(URL, params=params, headers=headers, timeout=5)
 
         if r.status_code == 200:
-            data = r.json()["data"]
+            payload = r.json()
+
+            if "data" not in payload:
+                return {"error": "Incomplete AbuseIPDB response"}
+
+            data = payload["data"]
+
+            if "abuseConfidenceScore" not in data or "totalReports" not in data or "countryCode" not in data or "isp" not in data:
+                return {"error": "Incomplete AbuseIPDB response"}
 
             formatted_data = {
                 "score": data["abuseConfidenceScore"], 
